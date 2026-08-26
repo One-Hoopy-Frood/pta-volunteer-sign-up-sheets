@@ -581,6 +581,15 @@ class PTA_SUS_Admin {
             $cancelled_messages .= '<hr/>';
 
         }
+		$full_cron_message = '';
+		if (isset($_GET['action']) && 'full_cron' === $_GET['action']) {
+			check_admin_referer( 'pta-sus-full-cron', '_sus_nonce');
+			// Fire the actual WP-Cron event hook (not just this plugin's own handler), so any
+			// extensions hooked into it (e.g. the Automated Emails add-on's scheduled triggers)
+			// run too, exactly as they would on a real hourly CRON tick.
+			do_action('pta_sus_cron_job');
+			$full_cron_message = '<div class="updated"><p>' . __('Hourly CRON job triggered. This ran this plugin\'s own tasks (reminders, rescheduled/cancelled event emails, expired cleanup) as well as anything hooked in by extensions. See the Debug Log below for details.', 'pta-volunteer-sign-up-sheets') . '</p></div>';
+		}
 		if (isset($_GET['action']) && 'reminders' === $_GET['action']) {
 			check_admin_referer( 'pta-sus-reminders', '_sus_nonce');
 			$num = PTA_SUS_Email_Functions::send_reminders();
@@ -627,6 +636,8 @@ class PTA_SUS_Admin {
 			PTA_SUS_Activation::migrate_customizer_templates($from_email);
 			$migrate_message = '<div class="updated"><p>' . __('Customizer email templates have been migrated. Check the Email Templates page to verify.', 'pta-volunteer-sign-up-sheets') . '</p></div>';
 		}
+		$full_cron_link = add_query_arg(array('action' => 'full_cron'));
+		$nonced_full_cron_link = wp_nonce_url( $full_cron_link, 'pta-sus-full-cron', '_sus_nonce');
 		$reminders_link = add_query_arg(array('action' => 'reminders'));
 		$nonced_reminders_link = wp_nonce_url( $reminders_link, 'pta-sus-reminders', '_sus_nonce');
         $reschedule_link = add_query_arg(array('action' => 'reschedule'));
@@ -643,6 +654,11 @@ class PTA_SUS_Admin {
 		echo '<div class="wrap pta_sus">';
 		echo '<h2>'.__('Tools', 'pta-volunteer-sign-up-sheets').'</h2>';
 		echo '<h2 class="title">'.__('CRON Functions', 'pta-volunteer-sign-up-sheets').'</h2>';
+		echo '<h3>'.__('Trigger CRON Functions Now', 'pta-volunteer-sign-up-sheets').'</h3>';
+		echo '<p>'.__("This runs the exact same hourly job WordPress's CRON system normally runs automatically - including this plugin's reminders, rescheduled/cancelled event emails, and expired sheet/signup cleanup, as well as anything hooked in by extensions (such as the Automated Emails add-on's scheduled trigger events). Use this if you're testing and don't want to install a separate CRON manager plugin or wait for the next scheduled run.", "pta_volunteer_sus") . '</p>';
+		echo $full_cron_message;
+		echo '<p><a href="'.esc_url($nonced_full_cron_link).'" class="button-primary">'.__('Trigger CRON Functions Now', 'pta-volunteer-sign-up-sheets').'</a></p>';
+		echo '<hr/>';
 		echo '<h3>'.__('Volunteer Reminders', 'pta-volunteer-sign-up-sheets').'</h3>';
 		echo '<p>'.__("The system automatically checks if it needs to send reminders hourly via a CRON function. If you are testing, or don't want to wait for the next CRON job to be triggered, you can trigger the reminders function with the button below.", "pta_volunteer_sus") . '</p>';
 		echo $messages;

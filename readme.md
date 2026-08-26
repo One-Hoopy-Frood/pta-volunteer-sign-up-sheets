@@ -145,6 +145,10 @@ Contributions are welcome! This plugin has been serving the volunteer community 
 - [Support Forums](https://stephensherrardplugins.com/support/)
 
 ## Changelog
+### 6.7.0 =
+- New: Added a "Trigger CRON Functions Now" button to the Tools page (CRON Functions section). Fires the actual pta_sus_cron_job WP-Cron event directly, running this plugin's own hourly tasks (reminders, rescheduled/cancelled event emails, expired cleanup) as well as anything hooked in by extensions (such as the Automated Emails add-on's scheduled trigger events) — useful for testing without installing a separate CRON manager plugin or waiting for the next scheduled run.
+- Tested with PHP 8.5.10 and WordPress 7.1
+
 ### 6.6.0
 - New: Cancel feature — added a "Cancel" option on the Sign Up Sheets All sheets list table to cancel an entire Sheet, one or more Tasks, or one or more Dates (Recurring sheets only). Clears the affected signups, optionally sends a Cancel notification email (new Cancel Email Template, selectable per sheet/task and available in Bulk Assignments), and never triggers the Waitlists extension's auto-fill-from-waitlist behavior.
 - New hooks: pta_sus_before_cancel_sheet, pta_sus_sheet_cancelled, pta_sus_before_cancel_task, pta_sus_task_cancelled, pta_sus_before_cancel_dates, pta_sus_dates_cancelled, and pta_sus_before_delete_sheet_cascade (fires before a full sheet deletion's cascade begins, unlike pta_sus_before_delete_sheet which only fires after). Updates needed for the Waitlists, Custom Fields, Locations, and Automated Emails extensions to make full use of these for their own cleanup.
